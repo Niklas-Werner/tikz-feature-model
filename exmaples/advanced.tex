@@ -1,0 +1,42 @@
+\documentclass{standalone}
+
+\usepackage{tikz}
+\usepackage{amsmath}
+
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+
+\input{../tikz-feature-model}
+
+\begin{document}
+
+\tikzfeaturemodel[
+    level 1/.append style = {
+        level distance = 10em,
+        sibling distance = 3em
+    }
+]{9,1}{
+    \node [abstract, multiline] {Example\\Database}
+        child [mandatory] { node [abstract] (os) {OS}
+            child { node (windows) {Windows} }
+            child { node (unix) {Unix} }
+        }
+        child [optional] { node {Transactions} }
+        child [optional] { node {Encryption} }
+        child [mandatory] { node [numeric] (cache) {Cache}
+            child { node [value] (cache1) {10} }
+            child { node [value] {100} }
+            child { node [value] (cache2) {1\,000} }
+        }
+    ;
+
+    \alternative{os}{windows}{unix}
+    \alternative{cache}{cache1}{cache2}
+
+    \constraints{6,-3.5}{
+        $ Encryption \implies Cache \ge 100 $
+    }
+}
+
+\end{document}
