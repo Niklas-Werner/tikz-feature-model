@@ -1,0 +1,118 @@
+\newcommand{\tikzfeaturemodel}[3][]{ % [styles]{legend pos}{content}
+\begin{tikzpicture}[
+        feature/.style = {
+            shape = rectangle,
+            draw,
+            fill = blue!30,
+            align = center,
+            minimum width = 3em,
+            minimum height = 1.3em,
+            text height = 1.5ex,
+            text depth = .15ex,
+            inner sep = .3em
+        },
+        multiline/.style = {
+            text height =
+        },
+        abstract/.style = {
+            fill = blue!10
+        },
+        numeric/.style = {
+            fill = red!10
+        },
+        value/.style = {
+            fill = red!30
+        },
+        optional/.style = {
+            -o,
+            shorten > = -2pt
+        },
+        mandatory/.style = {
+            -*,
+            shorten > = -2pt
+        }
+    ]
+
+    \def\anchorededge##1##2{
+        [style=edge from parent,##1]
+        (\tikzparentnode\tikzparentanchor) to ##2 (\tikzchildnode\tikzchildanchor)
+    }
+
+    \def\alternative##1##2##3{\begin{scope}
+        \clip (##2.west) -- (##1.east) -- (##3.west);
+        \draw (##1.east) circle (1.5em);
+        \end{scope}}
+
+    \def\constraints##1##2{
+        \node[draw=none,fill=none] at (##1) {
+            Cross-tree constraints: \\
+            ##2
+        };
+    }
+
+    % Legend
+    \begin{scope}[
+        on grid,
+        feature/.append style = {
+            minimum width = 4.5em,
+            minimum height = 1em,
+            font = \footnotesize
+        }
+    ]
+        \node [feature, abstract] at (#2) (abstract) {Abstract};
+        \node [feature, below of = abstract] (concrete) {Concrete};
+        \node [feature, numeric, below of = concrete] (numeric) {Numeric};
+        \node [feature, value, below of = numeric] (value) {Value};
+
+        \node [right = 3em of abstract] (opt1) {};
+        \node [feature, right = 4em of opt1] (opt2) {Optional};
+        \path [optional] (opt1) edge (opt2);
+
+        \node [right = 3em of concrete] (req1) {};
+        \node [feature, right = 4em of req1] (req2) {Mandatory};
+        \path [mandatory] (req1) edge (req2);
+
+        \node [below right = 1.2em and 2.2em of numeric] (alt1) {};
+        \node [feature, right = 7em of numeric] (alt2) {Alternative};
+        \node [feature, right = 7em of value] (alt3) {Alternative};
+        \draw (alt2.west) -- (alt1.east) -- (alt3.west);
+        \alternative{alt1}{alt2}{alt3}
+
+        \node at ($(abstract.north east)+(0.5,0.4)$) {\small Legend:};
+        \draw ($(abstract.north west)+(-0.2,0.8)$) rectangle ($(alt3.south east)+(0.2,-0.2)$);
+    \end{scope}
+
+    % Tree
+    \begin{scope}[
+        level 1/.style = {
+            level distance = 9em,
+            sibling distance = 5em
+        },
+        level 2/.style = {
+            level distance = 8em,
+            sibling distance = 2em
+        },
+        level 3/.style = {
+            sibling distance = 1.7em
+        },
+        level 4/.style = {
+            level distance = 7em
+        },
+        edge from parent macro=\anchorededge,
+        parent anchor = east,
+        child anchor = west,
+        grow' = right,
+        every child/.style = {
+            -,
+            shorten > = 0
+        },
+        every node/.style = {
+            feature
+        }
+    ]
+        \tikzset{#1}
+        #3
+    \end{scope}
+
+\end{tikzpicture}
+}
